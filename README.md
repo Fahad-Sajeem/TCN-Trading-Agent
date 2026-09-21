@@ -9,7 +9,7 @@ A Temporal Convolutional Network (TCN) that watches BTC/USDT 5-minute candles an
 1. **Fetch** — pull 6 months of 5-minute BTCUSDT candles from the public Binance API (`data_fetcher.py`). No API key needed; it's a public market-data endpoint.
 2. **Indicators** — compute ATR, RSI, swing highs, and distance/age/touch-count to the nearest resistance level (`indicators.py`).
 3. **Labels** — for every candle, look K candles into the future and label whether a breakout happened, whether it got retested, whether it continued, and how big the move was (`labeling.py`).
-4. **Windows** — slice the labeled series into overlapping lookback windows (200 candles) for the model to train on (`preprocessing.py` — see [Known gaps](#known-gaps)).
+4. **Windows** — slice the labeled series into overlapping lookback windows (200 candles) for the model to train on (`preprocessing.py`).
 5. **Train** — a 7-layer causal, dilated TCN (`model.py`) with four output heads (breakout / retest / continuation / move-size), trained with BCE + MSE loss (`train.py`).
 6. **Predict live** — `websocket_predictor.py` connects to Binance's public WebSocket kline stream, maintains a rolling buffer of candles, recomputes indicators in real time, and prints predictions as each 5-minute candle closes.
 
@@ -61,8 +61,7 @@ All hyperparameters (lookback, channels, learning rate, thresholds, feature/labe
 
 ## Known gaps
 
-- `pipeline.py` imports a `preprocessing.py` module (for building the sliding-window `X`/`y` arrays) that isn't in the repo yet — running the full pipeline as-is will fail at that step. The windowing logic it needs exists inline in `tcn_model_training.py` (`create_sliding_windows`); it just hasn't been extracted into its own module.
-- `tcn_model_training.py` is the original Colab notebook this project grew out of (hardcoded Google Drive paths, no error handling). Kept for reference; `data_fetcher.py` / `indicators.py` / `labeling.py` / `train.py` are the maintained, modular versions of the same logic.
+- `tcn_model_training.py` is the original Colab notebook this project grew out of (hardcoded Google Drive paths, no error handling). Kept for reference; `data_fetcher.py` / `indicators.py` / `labeling.py` / `preprocessing.py` / `train.py` are the maintained, modular versions of the same logic.
 - No test suite yet.
 
 ## Disclaimer
